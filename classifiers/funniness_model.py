@@ -24,7 +24,7 @@ class FunModel:
 
     def __getitem__(self, word):
         """
-        Returns the AoA score of "word". If the word is not in the vocabulary an exception is raised
+        Returns the AoA score of "word". If the word is not in the vocabulary the default value is returned
         """
         if word in self:
             return self._model[word]
