@@ -1,13 +1,13 @@
 import pickle
 import numpy as np
 
-UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams.p"
-BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams.p"
-TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams.p"
+UNIGRAMS_PATH = "../resources/ngram-language-models/{}_unigrams.p"
+BIGRAMS_PATH = "../resources/ngram-language-models/{}_bigrams.p"
+TRIGRAMS_PATH = "../resources/ngram-language-models/{}_trigrams.p"
 
-POS_UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams_pos_tags.p"
-POS_BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams_pos_tags.p"
-POS_TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams_pos_tags.p"
+POS_UNIGRAMS_PATH = "../resources/ngram-language-models/{}_unigrams_pos_tags.p"
+POS_BIGRAMS_PATH = "../resources/ngram-language-models/{}_bigrams_pos_tags.p"
+POS_TRIGRAMS_PATH = "../resources/ngram-language-models/{}_trigrams_pos_tags.p"
 
 
 class NgramBasedLM(object):
@@ -19,7 +19,7 @@ class NgramBasedLM(object):
     def __init__(self, type: str, grams: int = 2, pos_tags: bool = False):
         """
         Init the N-gram language model
-        :param type: The type of the model. can be either "science" or "jokes".
+        :param type: The type of the model. can be either "all_science" or "jokes".
         :param grams: one of  the values in [1,2,3]
         :param pos_tags: Whether to use a pos tags based N-gram model or not
         """
@@ -86,20 +86,11 @@ class NgramBasedLM(object):
         else:
             return max(w_unigram_count / self.unigrams_total, 1 / self.unigrams_total)
 
-    def _assert_sentence(self, sent_as_ngram: list) -> None:
-        """
-        Make sure that the sentence N-gram N matches the N of the model
-        """
-        assert (
-            len(sent_as_ngram[0]) == self.grams
-        ), f"Sentence N-grams are different from the model N-grams ({len(sent_as_ngram[0])} vs. {self.grams})."
-
     def sentence_entropy(self, sent_as_ngram: list) -> float:
         """
         Calculates the entropy of a sentence
         :param sent_as_ngram: The sentence already converted to N-grams
         """
-        self._assert_sentence(sent_as_ngram)
         entropy = np.mean([np.log2(self[ngram]) for ngram in sent_as_ngram])
         return float(entropy)
 
@@ -112,6 +103,5 @@ class NgramBasedLM(object):
         :param sent_as_ngram: The sentence already converted to N-grams
         :param reduce: the custom reduce to use. Default is np.mean.
         """
-        self._assert_sentence(sent_as_ngram)
         entropy = reduce([np.log2(self[ngram]) for ngram in sent_as_ngram])
         return float(entropy)

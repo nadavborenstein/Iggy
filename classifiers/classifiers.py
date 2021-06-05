@@ -1,4 +1,7 @@
 import pickle
+from functools import partial
+from typing import Callable
+
 import textstat
 
 import numpy as np
@@ -13,6 +16,8 @@ from nbsvm_classifier import NbSvmClassifier
 
 aoa_model = AoAModel()
 fun_model = FunModel()
+
+reduce_types = {"amax": np.max, "amin": np.min, "mean": np.mean, "var": np.var}
 
 
 ################ AoA functions #####################
@@ -80,13 +85,13 @@ class NgramEntropy(object):
 
     def __init__(
         self,
-        type: str = "science",
+        type: str = "all_science",
         grams: int = 2,
         pos_tags: bool = False,
         reduce=np.mean,
     ):
         """
-        :param type: The type of the model. can be either "science" or "jokes".
+        :param type: The type of the model. can be either "all_science" or "jokes".
         :param grams: one of  the values in [1,2,3]
         :param pos_tags: Whether to use a pos tags based N-gram model or not
         :param reduce: How to aggregate the results of a token-level statistics
@@ -121,7 +126,7 @@ class SimpleGPT2LM(object):
     Calculates the perplexity of a sentence using a GPT-2 language model
     """
 
-    def __init__(self, model: str = "resources/finetuned-gpt2/checkpoint/"):
+    def __init__(self, model: str = "../resources/finetuned-gpt2/checkpoint/"):
         """
         :param model: Path to saved checkpoint, or to a model name
         (one of the models supported by https://huggingface.co/).
@@ -140,7 +145,7 @@ class GPT2LMCustomReduce(object):
     """
 
     def __init__(
-        self, model: str = "resources/finetuned-gpt2/checkpoint/", reduce=np.mean
+        self, model: str = "../resources/finetuned-gpt2/checkpoint/", reduce=np.mean
     ):
         """
 
@@ -214,7 +219,7 @@ class WordLenAndRarity(object):
 
     def __init__(
         self,
-        counts_path: str = "resources/ngram-language-models/science_unigrams.p",
+        counts_path: str = "../resources/ngram-language-models/all_science_unigrams.p",
         reduce=np.mean,
     ):
         """
@@ -247,13 +252,13 @@ class NgramEntropyAndAoA(object):
 
     def __init__(
         self,
-        type: str = "science",
+        type: str = "all_science",
         grams: int = 2,
         pos_tags: bool = False,
         reduce=np.mean,
     ):
         """
-        :param type: The type of the model. can be either "science" or "jokes".
+        :param type: The type of the model. can be either "all_science" or "jokes".
         :param grams: one of  the values in [1,2,3]
         :param pos_tags: Whether to use a pos tags based N-gram model or not
         :param reduce: How to aggregate the results of a token-level statistics
@@ -297,13 +302,13 @@ class NgramEntropyAndFunniness(object):
 
     def __init__(
         self,
-        type: str = "science",
+        type: str = "all_science",
         grams: int = 2,
         pos_tags: bool = False,
         reduce=np.mean,
     ):
         """
-        :param type: The type of the model. can be either "science" or "jokes".
+        :param type: The type of the model. can be either "all_science" or "jokes".
         :param grams: one of  the values in [1,2,3]
         :param pos_tags: Whether to use a pos tags based N-gram model or not
         :param reduce: How to aggregate the results of a token-level statistics
@@ -384,7 +389,7 @@ class RudenessClassifier(object):
     def __init__(self):
         self.__name__ = "rudeness_classifier"
         self.model = pickle.load(
-            open("resources/rudeness-classifier/rudeness_classifier.m", "rb")
+            open("../resources/rudeness-classifier/rudeness_classifier.m", "rb")
         )
 
     def __call__(self, row: pd.Series) -> float:
@@ -400,20 +405,20 @@ class RudenessAndPerplexity(object):
 
     def __init__(
         self,
-        type: str = "science",
+        type: str = "all_science",
         grams: int = 2,
         pos_tags: bool = False,
         reduce=np.mean,
     ):
         """
-        :param type: The type of the model. can be either "science" or "jokes".
+        :param type: The type of the model. can be either "all_science" or "jokes".
         :param grams: one of  the values in [1,2,3]
         :param pos_tags: Whether to use a pos tags based N-gram model or not
         :param reduce: How to aggregate the results of a token-level statistics
         (default is taking the mean across the sentence, other options are min, max and std)
         """
         self.model = pickle.load(
-            open("resources/rudeness-classifier/rudeness_classifier.m", "rb")
+            open("../resources/rudeness-classifier/rudeness_classifier.m", "rb")
         )
         self.ngrams = grams
         self.pos_tags = pos_tags
@@ -447,3 +452,98 @@ class RudenessAndPerplexity(object):
             # such that rude, surprising words have higher values than benign, common words
         except ValueError:
             return 0.0
+
+
+################ utils #####################
+
+
+def get_function_from_name(name: str) -> Callable:
+    """
+    A utility function to return a classifier given its name. It's ugly but it works.
+    :param name: the name of the classifier. See classifiers/classifiers_names.txt for reference.
+    :return: A callable classifier
+    """
+
+    def find_ngram(str) -> int:
+        if "3" in name:
+            return 3
+        elif "2" in name:
+            return 2
+        elif "1" in name:
+            return 1
+        else:
+            return 0
+
+    def find_pos_tag(name: str) -> bool:
+        return "pos_tags" in name
+
+    reduce_type = name.split("_")[-1]
+    reduce = reduce_types[reduce_type] if reduce_type in reduce_type else None
+    grams = find_ngram(name)
+    pos_tags = find_pos_tag(name)
+
+    # simple analysis
+    if name.startswith("simple_aoa_analysis"):
+        clf = partial(simple_aoa_analysis, reduce=reduce)
+    elif name.startswith("average_word_len"):
+        clf = partial(average_word_len, reduce=reduce)
+    elif name == "len_analysis":
+        clf = len_analysis
+    elif name.startswith("simple_funniness_analysis"):
+        clf = partial(simple_funniness_analysis, reduce=reduce)
+
+    # Ngrams LMs
+    elif name.startswith("all_science"):
+        clf = NgramEntropy(
+            type="all_science", grams=grams, pos_tags=pos_tags, reduce=reduce
+        )
+    elif name.startswith("jokes"):
+        clf = NgramEntropy(type="jokes", grams=grams, pos_tags=pos_tags, reduce=reduce)
+
+    # Ngrams combined with other classifier
+    elif name.startswith("funniness_and_all_science"):
+        clf = NgramEntropyAndFunniness(
+            type="all_science", grams=grams, pos_tags=pos_tags, reduce=reduce
+        )
+    elif name.startswith("AoA_and_all_science"):
+        clf = NgramEntropyAndAoA(
+            type="all_science", grams=grams, pos_tags=pos_tags, reduce=reduce
+        )
+    elif name.startswith("rudeness_classifier_all_science"):
+        clf = RudenessAndPerplexity(
+            type="all_science", grams=grams, pos_tags=pos_tags, reduce=reduce
+        )
+
+    # GPT and BERT
+    elif name == "simple_gpt2_lm_after_fine_tuning":
+        clf = SimpleGPT2LM()
+    elif name == "simple_bert-base-uncased_lm":
+        clf = SimpleBERT_LM()
+    elif name == "simple_allenai/scibert_scivocab_uncased_lm":
+        clf = SimpleBERT_LM("simple_allenai/scibert_scivocab_uncased_lm")
+    elif name.startswith("gpt2_lm_after_fine_tuning_reduce"):
+        clf = GPT2LMCustomReduce(reduce=reduce)
+    elif name.startswith("bert-base-uncased_lm_reduce"):
+        clf = BERT_LMCustomReduce(reduce=reduce)
+    elif name.startswith("allenai/scibert_scivocab_uncased_lm_reduce"):
+        clf = BERT_LMCustomReduce(
+            "allenai/scibert_scivocab_uncased_lm_reduce", reduce=reduce
+        )
+
+    # other classifiers
+    elif name.startswith("POS_tags_analysis"):
+        pos_tag_type = name.split("_")[-1]
+        clf = PosTagsStatistics(pos_tag_type)
+    elif name.startswith("readability"):
+        readability_type = name[12:]
+        clf = Readability(measurement=readability_type)
+    elif name == "rudeness_classifier":
+        clf = RudenessClassifier()
+    elif name.startswith("word_len_and_rarity"):
+        clf = WordLenAndRarity(reduce=reduce)
+
+    else:
+        raise ValueError(f"Unknown classifier: {name}")
+
+    clf.__name__ = name
+    return clf

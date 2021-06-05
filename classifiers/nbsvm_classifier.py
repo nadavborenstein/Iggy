@@ -1,6 +1,7 @@
 # Copyright (c) 2019 Lightricks. All rights reserved.
 import re
 import string
+import numpy as np
 from scipy import sparse
 
 from sklearn.base import BaseEstimator, ClassifierMixin

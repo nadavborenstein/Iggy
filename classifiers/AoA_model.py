@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-PATH_TO_AOA_CSV = "resources/AoA/AoA_lemmas.csv"
+PATH_TO_AOA_CSV = "../resources/AoA/AoA_lemmas.csv"
 
 
 class AoAModel:
