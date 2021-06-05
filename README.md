@@ -47,7 +47,7 @@ Check `classifiers/classifiers_names.txt` for reference.
 
 After the code will finish running, you should see in SAVE_PATH a file with the same structure as `dataset/IggDataset_with_data_analysis_results.csv`
 
-### Training, testing amd predicting with the MLP model
+### Training, testing and predicting with the MLP model
 
 Usage:
 ```bash
@@ -59,7 +59,7 @@ python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] [
                     [--hidden_size HIDDEN_SIZE] [--alpha ALPHA]
 ```
 
-To train the MLP classifier, `cd` to `Iggy/` and run:
+####To train the MLP classifier, `cd` to `Iggy/` and run:
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] 
                     [--train_dataset_root_path TRAIN_DATASET_ROOT_PATH]
@@ -77,8 +77,8 @@ Where:
 
 `alpha`: float. l2 regularization parameter. Default is 2. (this is the value we used).
 
-
-To evaluate the model on labeled data, run:
+<br/><br/>
+####To evaluate the model on labeled data, run:
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--test] 
                     [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
@@ -91,8 +91,8 @@ Where:
 
 `predict_test_dataset_path`: path to a labeled dataset to evaluate.
 
-
-To predict using the model on unlabeled data, run:
+<br/><br/>
+####To predict using the model on unlabeled data, run:
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--predict] 
                     [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
