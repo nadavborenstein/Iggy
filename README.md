@@ -1,7 +1,7 @@
 # Iggy
 [[Paper]]() [[Presentation]]()
 
-Implementation of the paper "How Did This Get Funded?!Automatically Identifying Quirky Scientific Achievements"
+Implementation of the paper "How Did This Get Funded?!Automatically Identifying Quirky Scientific Achievements".
 
 
 ## Downloading relevant files
@@ -18,7 +18,8 @@ We finetuned a GPT-2 model on our dataset of titles. Copy the folder from
 We trained a simple nbsvm for detecting rude or crude language, and we use it as one of our classifiers. Copy the model from 
 [here](https://drive.google.com/drive/folders/1e687JrzzO_VWLl3cX55wUxicrHVuuuuq?usp=sharing) and paste it in `resources/rudeness-classifier`.
 
-
+### Our pretrained models
+You can find our pretrained models (Iggy, and the BERT based models) [here](). Place them in `models-weights`.
 
 ## Usage
 
@@ -27,13 +28,13 @@ We trained a simple nbsvm for detecting rude or crude language, and we use it as
 To analyze a set of title using the classifiers, `cd` to `Iggy/` and run:
 
 ```bash
-python run_classifiers.py --titles_path TITLES_PATH --save_path SAVE_PATH
+python classifiers/run_classifiers.py --titles_path TITLES_PATH --save_path SAVE_PATH
                           --classifiers_to_use CLASSIFIERS_TO_USE [--labeled]
 ```
 
 Where:
 
-`--titles_path`: path to a csv of titles to analyze. The titles should be in a column named "title".
+`titles_path`: path to a csv of titles to analyze. The titles should be in a column named "title".
 
 `save_path`: where to save the analysis results.
 
@@ -46,7 +47,66 @@ Check `classifiers/classifiers_names.txt` for reference.
 
 After the code will finish running, you should see in SAVE_PATH a file with the same structure as `dataset/IggDataset_with_data_analysis_results.csv`
 
-### Training the MLP model
+### Training, testing amd predicting with the MLP model
+
+Usage:
+```bash
+python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] [--test]
+                    [--predict]
+                    [--train_dataset_root_path TRAIN_DATASET_ROOT_PATH]
+                    [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
+                    [--predict_output_path PREDICT_OUTPUT_PATH]
+                    [--hidden_size HIDDEN_SIZE] [--alpha ALPHA]
+```
+
+To train the MLP classifier, `cd` to `Iggy/` and run:
+```bash
+python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] 
+                    [--train_dataset_root_path TRAIN_DATASET_ROOT_PATH]
+                    [--hidden_size HIDDEN_SIZE] [--alpha ALPHA]
+```
+Where:
+
+`--train`: this will flag the script to train the MLP model.
+
+`model_save_path`: where to save the trained model
+
+`train_dataset_root_path`: path to a directory containing `train.csv` and `dev.csv`. The model will use those files to train.
+
+`hidden_size`: int. Hidden size of the MLP. Default is 256 (this is the value we used).
+
+`alpha`: float. l2 regularization parameter. Default is 2. (this is the value we used).
+
+
+To evaluate the model on labeled data, run:
+```bash
+python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--test] 
+                    [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
+```
+
+Where:
+`--train`: this will flag the script to evaluate the MLP model on `predict_test_dataset_path`.
+
+`model_save_path`: path to the trained model
+
+`predict_test_dataset_path`: path to a labeled dataset to evaluate.
+
+
+To predict using the model on unlabeled data, run:
+```bash
+python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--predict] 
+                    [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
+                    [--predict_output_path PREDICT_OUTPUT_PATH]
+```
+
+Where:
+`--predict`: this will flag the script to predict using MLP model on `predict_test_dataset_path`.
+
+`model_save_path`: path to the trained model
+
+`predict_test_dataset_path`: path to an unlabeled dataset to predict on.
+
+`predict_output_path`: where to store the prediction results
 
 ### Training the BERT-based models
 

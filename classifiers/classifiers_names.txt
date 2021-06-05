@@ -119,9 +119,6 @@ funniness_and_all_science_3grams_entropy_var
 simple_gpt2_lm_after_fine_tuning
 simple_bert-base-uncased_lm
 simple_allenai/scibert_scivocab_uncased_lm
-gpt2_lm_after_fine_tuning_reduce_mean
-gpt2_lm_after_fine_tuning_reduce_amin
-gpt2_lm_after_fine_tuning_reduce_var
 bert-base-uncased_lm_reduce_mean
 bert-base-uncased_lm_reduce_amin
 bert-base-uncased_lm_reduce_var
