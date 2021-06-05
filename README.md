@@ -24,6 +24,26 @@ We trained a simple nbsvm for detecting rude or crude language, and we use it as
 
 ### Using the classifiers
 
+To analyze a set of title using the classifiers cd to `Iggy/` and run:
+
+```bash
+python run_classifiers.py --titles_path TITLES_PATH --save_path SAVE_PATH
+                          --classifiers_to_use CLASSIFIERS_TO_USE [--labeled]
+```
+
+Where:
+
+`--titles_path`: path to a csv of titles to analyze. The titles should be in a column named "title".
+
+`save_path`: where to save the analysis results.
+
+`classifiers_to_use`: which classifiers to use to analyze the titles. A path to a txt file with the names of the classifiers to run.
+Check `classifiers/classifiers_names.txt` for reference.
+
+`--labeled`: whether the titles to analyze are labeled. That is, whether the titles come from the file
+`datasets/IgDataset.csv`
+
+
 ### Training the MLP model
 
 ### Training the BERT-based models

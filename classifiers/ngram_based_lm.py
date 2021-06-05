@@ -1,13 +1,13 @@
 import pickle
 import numpy as np
 
-UNIGRAMS_PATH = "../resources/ngram-language-models/{}_unigrams.p"
-BIGRAMS_PATH = "../resources/ngram-language-models/{}_bigrams.p"
-TRIGRAMS_PATH = "../resources/ngram-language-models/{}_trigrams.p"
+UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams.p"
+BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams.p"
+TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams.p"
 
-POS_UNIGRAMS_PATH = "../resources/ngram-language-models/{}_unigrams_pos_tags.p"
-POS_BIGRAMS_PATH = "../resources/ngram-language-models/{}_bigrams_pos_tags.p"
-POS_TRIGRAMS_PATH = "../resources/ngram-language-models/{}_trigrams_pos_tags.p"
+POS_UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams_pos_tags.p"
+POS_BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams_pos_tags.p"
+POS_TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams_pos_tags.p"
 
 
 class NgramBasedLM(object):

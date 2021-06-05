@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-PATH_TO_FUN_CSV = "../resources/word-funnines-model/Why_are_some_words_funny_lemmas.csv"
+PATH_TO_FUN_CSV = "resources/word-funnines-model/Why_are_some_words_funny_lemmas.csv"
 
 
 class FunModel:

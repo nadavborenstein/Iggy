@@ -126,7 +126,7 @@ class SimpleGPT2LM(object):
     Calculates the perplexity of a sentence using a GPT-2 language model
     """
 
-    def __init__(self, model: str = "../resources/finetuned-gpt2/checkpoint/"):
+    def __init__(self, model: str = "resources/finetuned-gpt2/checkpoint/"):
         """
         :param model: Path to saved checkpoint, or to a model name
         (one of the models supported by https://huggingface.co/).
@@ -145,7 +145,7 @@ class GPT2LMCustomReduce(object):
     """
 
     def __init__(
-        self, model: str = "../resources/finetuned-gpt2/checkpoint/", reduce=np.mean
+        self, model: str = "resources/finetuned-gpt2/checkpoint/", reduce=np.mean
     ):
         """
 
@@ -219,7 +219,7 @@ class WordLenAndRarity(object):
 
     def __init__(
         self,
-        counts_path: str = "../resources/ngram-language-models/all_science_unigrams.p",
+        counts_path: str = "resources/ngram-language-models/all_science_unigrams.p",
         reduce=np.mean,
     ):
         """
@@ -389,7 +389,7 @@ class RudenessClassifier(object):
     def __init__(self):
         self.__name__ = "rudeness_classifier"
         self.model = pickle.load(
-            open("../resources/rudeness-classifier/rudeness_classifier.m", "rb")
+            open("resources/rudeness-classifier/rudeness_classifier.m", "rb")
         )
 
     def __call__(self, row: pd.Series) -> float:
@@ -418,7 +418,7 @@ class RudenessAndPerplexity(object):
         (default is taking the mean across the sentence, other options are min, max and std)
         """
         self.model = pickle.load(
-            open("../resources/rudeness-classifier/rudeness_classifier.m", "rb")
+            open("resources/rudeness-classifier/rudeness_classifier.m", "rb")
         )
         self.ngrams = grams
         self.pos_tags = pos_tags
