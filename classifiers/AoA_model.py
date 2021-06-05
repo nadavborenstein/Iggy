@@ -10,7 +10,7 @@ class AoAModel:
     how simple the word is (lower is simpler)
     """
 
-    def __init__(self, default_value=16):
+    def __init__(self, default_value: int = 16):
         """
         builds the AoA model
         :param default_value: default value of the model (16 is the maximal possible value)
@@ -30,7 +30,7 @@ class AoAModel:
             else np.mean(list(self._model.values()))
         )
 
-    def __getitem__(self, word):
+    def __getitem__(self, word: str) -> float:
         """
         Returns the AoA score of "word". If the word is not in the vocabulary the default value is returned
         """
@@ -39,7 +39,7 @@ class AoAModel:
         else:
             return self._default_value
 
-    def __contains__(self, word):
+    def __contains__(self, word: str) -> bool:
         """
         Returns true if "word" is in the vocabulary, and false otherwise
         """

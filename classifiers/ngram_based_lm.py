@@ -1,35 +1,63 @@
 import pickle
 import numpy as np
-import pandas as pd
-import spacy
 
-UNIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/unigrams/{}_unigrams.p"
-BIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/bigrams/{}_bigrams.p"
-TRIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/trigrams/{}_trigrams.p"
+UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams.p"
+BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams.p"
+TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams.p"
 
-POS_UNIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/unigrams/{}_unigrams_pos_tags.p"
-POS_BIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/bigrams/{}_bigrams_pos_tags.p"
-POS_TRIGRAMS_PATH = "/Users/nborenstein/PycharmProjects/Iggy_AAAI/data/trigrams/{}_trigrams_pos_tags.p"
-
-
+POS_UNIGRAMS_PATH = "resources/ngram-language-models/{}_unigrams_pos_tags.p"
+POS_BIGRAMS_PATH = "resources/ngram-language-models/{}_bigrams_pos_tags.p"
+POS_TRIGRAMS_PATH = "resources/ngram-language-models/{}_trigrams_pos_tags.p"
 
 
 class NgramBasedLM(object):
+    """
+    An N-gram based language model. Supports 1-gram, 2-gram and 3-gram LMs as well as N-gram LMs
+    based on pos tags.
+    """
 
-    def __init__(self, field: str, grams: int = 2, pos_tags: bool = False):
-        self.field = field
+    def __init__(self, type: str, grams: int = 2, pos_tags: bool = False):
+        """
+        Init the N-gram language model
+        :param type: The type of the model. can be either "science" or "jokes".
+        :param grams: one of  the values in [1,2,3]
+        :param pos_tags: Whether to use a pos tags based N-gram model or not
+        """
+        self.type = type
         self.grams = grams
+
+        # self.trigrams, self.bigrams and self.unigrams are all default dicts
         if pos_tags:
-            self.unigrams = pickle.load(open(POS_UNIGRAMS_PATH.format(field), "rb"))
-            self.bigrams = pickle.load(open(POS_BIGRAMS_PATH.format(field), "rb"))
-            self.trigrams = pickle.load(open(POS_TRIGRAMS_PATH.format(field), "rb")) if grams == 3 else None
+            self.unigrams = pickle.load(open(POS_UNIGRAMS_PATH.format(type), "rb"))
+            self.bigrams = (
+                pickle.load(open(POS_BIGRAMS_PATH.format(type), "rb"))
+                if grams >= 2
+                else None
+            )
+            self.trigrams = (
+                pickle.load(open(POS_TRIGRAMS_PATH.format(type), "rb"))
+                if grams == 3
+                else None
+            )
         else:
-            self.unigrams = pickle.load(open(UNIGRAMS_PATH.format(field), "rb"))
-            self.bigrams = pickle.load(open(BIGRAMS_PATH.format(field), "rb"))
-            self.trigrams = pickle.load(open(TRIGRAMS_PATH.format(field), "rb")) if grams == 3 else None
+            self.unigrams = pickle.load(open(UNIGRAMS_PATH.format(type), "rb"))
+            self.bigrams = (
+                pickle.load(open(BIGRAMS_PATH.format(type), "rb"))
+                if grams >= 2
+                else None
+            )
+            self.trigrams = (
+                pickle.load(open(TRIGRAMS_PATH.format(type), "rb"))
+                if grams == 3
+                else None
+            )
         self.unigrams_total = sum(self.unigrams.values())
 
     def __getitem__(self, ngram: tuple) -> float:
+        """
+        :param ngram: a tuple of words of length 1, 2 or 3.
+        :return: the probability of seeing the last word in the tuple given the other words
+        """
         if self.grams == 3:
             w_2, w_1, w = ngram
             trigram_count = self.trigrams[(w_2, w_1, w)]
@@ -43,8 +71,13 @@ class NgramBasedLM(object):
             trigram_count, w_1_w_2_bigram_count = 0, 0
         else:
             w = ngram[0]
-            trigram_count, w_1_w_2_bigram_count, bigrams_count, w_1_unigram_count = 0, 0, 0, 0
-
+            trigram_count, w_1_w_2_bigram_count, bigrams_count, w_1_unigram_count = (
+                0,
+                0,
+                0,
+                0,
+            )
+        # the actual calculation, implementation of simple smoothing technique
         w_unigram_count = self.unigrams[w]
         if trigram_count != 0:
             return trigram_count / w_1_w_2_bigram_count
@@ -53,121 +86,32 @@ class NgramBasedLM(object):
         else:
             return max(w_unigram_count / self.unigrams_total, 1 / self.unigrams_total)
 
-    def _generate_ngrams(self, dataset: pd.DataFrame, pos_tags: bool, save_path: str = "resources/ngram_language_models/"):
-        nlp = spacy.load("en_core_web_sm")
+    def _assert_sentence(self, sent_as_ngram: list) -> None:
+        """
+        Make sure that the sentence N-gram N matches the N of the model
+        """
+        assert (
+            len(sent_as_ngram[0]) == self.grams
+        ), f"Sentence N-grams are different from the model N-grams ({len(sent_as_ngram[0])} vs. {self.grams})."
 
     def sentence_entropy(self, sent_as_ngram: list) -> float:
+        """
+        Calculates the entropy of a sentence
+        :param sent_as_ngram: The sentence already converted to N-grams
+        """
+        self._assert_sentence(sent_as_ngram)
         entropy = np.mean([np.log2(self[ngram]) for ngram in sent_as_ngram])
         return float(entropy)
 
-    def sentence_mean_prob(self, sent_as_ngram: list) -> float:
-        mean_prob = np.mean([self[ngram] for ngram in sent_as_ngram])
-        return float(mean_prob)
-
-    def sentence_entropy_custom_reduce(self, sent_as_ngram: list, reduce = np.mean) -> float:
+    def sentence_entropy_custom_reduce(
+        self, sent_as_ngram: list, reduce=np.mean
+    ) -> float:
+        """
+        Compute sentence "entropy" while using a custom reduction (this is the same as regular
+        entropy if reduce=mean).
+        :param sent_as_ngram: The sentence already converted to N-grams
+        :param reduce: the custom reduce ti use. Default is np.mean.
+        """
+        self._assert_sentence(sent_as_ngram)
         entropy = reduce([np.log2(self[ngram]) for ngram in sent_as_ngram])
         return float(entropy)
-
-
-
-###### FUNCTIONS RELATED TO CREATION OF THE PICKLES ######
-
-
-def n_gram_stats(field, nlp, n, abstract=False):
-    """
-    Computes the n grams model for a field with/without abstract
-    """
-    nouns_dict = defaultdict(int)
-    data = pd.read_csv(os.path.join(PATH_TO_ARTICLES_FY_FIELD_AFTER_FILTRATION, field + ".csv")) # TODO: change the path once the data changes!
-    for index, row in tqdm(data.iterrows()):
-        title = row["title"]
-        if abstract:
-            abstract = row["paperAbstract"]
-            doc = nlp(str(title) + " " + str(abstract))
-        else:
-            doc = nlp(str(title))
-        nouns = [token.lemma_ for token in doc if token.pos_ == "NOUN" if token.lemma_.isalpha()]
-
-        for i in range(n, len(nouns)):
-            window = nouns[i-n:i]
-            nouns_dict[tuple(window)] += 1
-    return nouns_dict
-
-
-def normalization_ngrams(field, path, n):
-    """
-    Normalizes the n grams model and return a logit distribution for each sequance
-    """
-    # for field in fields:
-    with open(path+"{}gram_stats_{}.pickle".format(n, field), 'rb') as f:
-        field_dict = pickle.load(f)
-        # all_dicts = pickle.load(f)
-        # field_dict = all_dicts[field]
-        values = field_dict.values()
-        counter = sum(values)
-        log_counter = np.log(counter)
-
-    for key in field_dict.keys():
-        field_dict[key] = np.log(field_dict[key]) - log_counter
-
-    with open(path+"{}gram_stats_{}_normalized.pickle".format(n, field),"wb") as pickle_out:
-        pickle.dump(field_dict, pickle_out)
-    return counter
-
-
-def dict_of_dicts_merge(x, y):
-    z = x.copy()
-    overlapping_keys = x.keys() & y.keys()
-    for key in overlapping_keys:
-        z[key] = x[key] + y[key]
-    for key in y.keys() - overlapping_keys:
-        z[key] = deepcopy(y[key])
-    return z
-
-
-def inter_fields(fields, path):
-    with open(path+"all_fields_freq_dict.p", 'rb') as f:
-        all_dicts = pickle.load(f)
-        one_two = dict_of_dicts_merge(all_dicts[fields[0]], all_dicts[fields[1]])
-        print("1,2")
-        three_four =  dict_of_dicts_merge(all_dicts[fields[2]], all_dicts[fields[3]])
-        print("3,4")
-        five_six = dict_of_dicts_merge(all_dicts[fields[4]], all_dicts[fields[5]])
-        print("5,6")
-        seven_eight =  dict_of_dicts_merge(all_dicts[fields[6]], all_dicts[fields[7]])
-        print("7,8")
-        nine_ten = dict_of_dicts_merge(all_dicts[fields[8]], all_dicts[fields[9]])
-        print("9,10")
-
-        one_two_three_four =  dict_of_dicts_merge(one_two, three_four)
-        print("1-4")
-        five_six_seven_eight =  dict_of_dicts_merge(five_six, seven_eight)
-        print("5-8")
-        one_to_eight = dict_of_dicts_merge(one_two_three_four, five_six_seven_eight)
-        print("1-8")
-        all = dict_of_dicts_merge(one_to_eight, nine_ten)
-        print("all")
-
-        with open(path+"all_fields_freq_dict_normalized.pickle","wb") as pickle_out:
-            pickle.dump(all, pickle_out)
-
-
-def all_fields_stats(n):
-    n = str(n)
-    nouns_dict = defaultdict(int)
-    nlp = spacy.load("en_core_web_sm")
-    PATH_TO_ARTICLES_TSV = r"/cs/labs/dshahaf/chenxshani/IgNobel-shared with Nadav/res/articles/" + n + "/"
-    for filename in os.listdir(PATH_TO_ARTICLES_TSV):
-        data = pd.read_csv(os.path.join(PATH_TO_ARTICLES_TSV, filename), delimiter="\t")
-        for index, row in tqdm(data.iterrows()):
-            title = row["title"]
-            doc = nlp(str(title))
-            nouns = [token.lemma_ for token in doc if token.pos_ == "NOUN" if token.lemma_.isalpha()]
-            for noun in nouns:
-                nouns_dict[noun] += 1
-
-        with open("/cs/labs/dshahaf/chenxshani/IgNobel-shared with Nadav/res/new_ngrams/clusters/1gram_stats_science{}_file_{}.pickle".format(n, filename[:-4]), 'wb') as f:
-            pickle.dump(nouns_dict, f)
-
-    with open("/cs/labs/dshahaf/chenxshani/IgNobel-shared with Nadav/res/new_ngrams/clusters/1gram_stats_science{}.pickle".format(n), 'wb') as f:
-        pickle.dump(nouns_dict, f)

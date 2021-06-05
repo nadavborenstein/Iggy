@@ -10,7 +10,7 @@ class FunModel:
     how funny the word is (lower is better)
     """
 
-    def __init__(self, type="Arousal"):
+    def __init__(self, type: str = "Arousal"):
         """
         builds the funniness model
         :param type: the funniness measurement type. Default is "Arousal".
@@ -20,9 +20,9 @@ class FunModel:
         data = pd.read_csv(PATH_TO_FUN_CSV)
         for i, row in data.iterrows():
             self._model[row[0]] = float(row[type])
-        self._default_value = np.mean(list(self._model.values()))
+        self._default_value = float(np.mean(list(self._model.values())))
 
-    def __getitem__(self, word):
+    def __getitem__(self, word: str) -> float:
         """
         Returns the AoA score of "word". If the word is not in the vocabulary the default value is returned
         """
@@ -31,7 +31,7 @@ class FunModel:
         else:
             return self._default_value
 
-    def __contains__(self, word):
+    def __contains__(self, word: str) -> bool:
         """
         Returns true if "word" is in the vocabulary, and false otherwise
         """
