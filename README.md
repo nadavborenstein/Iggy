@@ -59,7 +59,7 @@ python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] [
                     [--hidden_size HIDDEN_SIZE] [--alpha ALPHA]
 ```
 
-####To train the MLP classifier, `cd` to `Iggy/` and run:
+<b>To train the MLP classifier, `cd` to `Iggy/` and run:<b/>
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--train] 
                     [--train_dataset_root_path TRAIN_DATASET_ROOT_PATH]
@@ -78,7 +78,7 @@ Where:
 `alpha`: float. l2 regularization parameter. Default is 2. (this is the value we used).
 
 <br/><br/>
-####To evaluate the model on labeled data, run:
+<b>To evaluate the model on labeled data, run:<b/>
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--test] 
                     [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
@@ -92,7 +92,7 @@ Where:
 `predict_test_dataset_path`: path to a labeled dataset to evaluate.
 
 <br/><br/>
-####To predict using the model on unlabeled data, run:
+<b>To predict using the model on unlabeled data, run:<b/>
 ```bash
 python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--predict] 
                     [--predict_test_dataset_path PREDICT_TEST_DATASET_PATH]
