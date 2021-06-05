@@ -110,6 +110,7 @@ class NgramEntropy(object):
     """
     Calculates the entropy of a sentence using a simple N-gram language model
     """
+
     def __init__(
         self,
         field: str = "all_science",
@@ -131,7 +132,7 @@ class NgramEntropy(object):
             tags = [t.tag_ for t in row.nlp]
             title_as_ngrams = ngrams(tags, self.ngrams)
         else:
-            title_as_ngrams = ngrams([t.lemma_.lower() for t in row.nlp if t.pos_ == "NOUN" ], self.ngrams)
+            title_as_ngrams = ngrams([t.lemma_.lower() for t in row.nlp], self.ngrams)
         try:
             entropy = self.lm_model.sentence_entropy_custom_reduce(
                 title_as_ngrams, self.reduce
@@ -142,7 +143,7 @@ class NgramEntropy(object):
 
 
 class SimpleGPT2LM(object):
-    def __init__(self, model: str = "models/checkpoint-75000"):
+    def __init__(self, model: str = "resources/finetuned-gpt2/checkpoint/"):
         self.model = GPT2LM(model)
         self.__name__ = "simple_gpt2_lm_after_fine_tuning"
 
@@ -150,22 +151,19 @@ class SimpleGPT2LM(object):
         return self.model.calc_perplexity(row.title.lower())
 
 
-probs_dict = dict()
-
-
+# TODO add caching mechanism
 class GPT2LMCustomReduce(object):
-    def __init__(self, model: str = "models/checkpoint-75000", reduce=np.mean):
+    def __init__(
+        self, model: str = "resources/finetuned-gpt2/checkpoint/", reduce=np.mean
+    ):
         self.model = GPT2LM(model)
         self.__name__ = "gpt2_lm_after_fine_tuning_reduce_" + reduce.__name__
         self.reduce = reduce
 
     def __call__(self, row: pd.Series) -> float:
-        if row.title in probs_dict:
-            probs = probs_dict[row.title]
-        else:
-            probs = self.model.calc_perplexity_custom_reduce(row.title.lower())
-            probs_dict[row.title] = probs
-        return float(self.reduce(probs))
+        return self.model.calc_perplexity_custom_reduce(
+            row.title.lower(), reduce=self.reduce
+        )
 
 
 class SimpleBERT_LM(object):
@@ -181,6 +179,7 @@ class SimpleBERT_LM(object):
         return self.model.calc_entire_sentence_perplexity(inp)
 
 
+# TODO add caching mechanism
 class BERT_LMCustomReduce(object):
     models = ["bert-base-uncased", "allenai/scibert_scivocab_uncased"]
 
@@ -193,13 +192,8 @@ class BERT_LMCustomReduce(object):
         self.reduce = reduce
 
     def __call__(self, row: pd.Series) -> float:
-        if row.title in probs_dict:
-            probs = probs_dict[row.title]
-        else:
-            inp = row.title.lower() if "uncased" in self.model_name else row.title
-            probs = self.model.calc_perplexity_custom_reduce(inp)[0]
-            probs_dict[row.title] = probs
-        return float(self.reduce(probs))
+        inp = row.title.lower() if "uncased" in self.model_name else row.title
+        return self.model.calc_perplexity_custom_reduce(inp, reduce=self.reduce)
 
 
 ################ Perplexity and AoA ####################

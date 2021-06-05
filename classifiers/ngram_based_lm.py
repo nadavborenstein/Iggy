@@ -110,7 +110,7 @@ class NgramBasedLM(object):
         Compute sentence "entropy" while using a custom reduction (this is the same as regular
         entropy if reduce=mean).
         :param sent_as_ngram: The sentence already converted to N-grams
-        :param reduce: the custom reduce ti use. Default is np.mean.
+        :param reduce: the custom reduce to use. Default is np.mean.
         """
         self._assert_sentence(sent_as_ngram)
         entropy = reduce([np.log2(self[ngram]) for ngram in sent_as_ngram])
