@@ -93,6 +93,7 @@ python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--test]
 ```
 
 Where:
+
 `--train`: this will flag the script to evaluate the MLP model on `predict_test_dataset_path`.
 
 `model_save_path`: path to the trained model
@@ -108,6 +109,7 @@ python model_training/MLP_train.py --model_save_path MODEL_SAVE_PATH [--predict]
 ```
 
 Where:
+
 `--predict`: this will flag the script to predict using MLP model on `predict_test_dataset_path`.
 
 `model_save_path`: path to the trained model
