@@ -127,7 +127,7 @@ To predict using a BERT model on unlabeled data, run:</b>
  python model_training/bert_labeler.py [-h] --data_dir DATA_DIR --bert_model BERT_MODEL
                        --output_path OUTPUT_PATH
                        [--max_seq_length MAX_SEQ_LENGTH]
-                       [--batch_size BATCH_SIZE] [--overwrite_output_dir]
+                       [--batch_size BATCH_SIZE]
 ```
 
 ### 

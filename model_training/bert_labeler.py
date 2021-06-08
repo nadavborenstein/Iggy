@@ -45,11 +45,6 @@ def parse_args():
     parser.add_argument(
         "--batch_size", default=32, type=int, help="Total batch size for training."
     )
-    parser.add_argument(
-        "--overwrite_output_dir",
-        action="store_true",
-        help="Overwrite the content of the output directory",
-    )
     args = parser.parse_args()
     return args
 
