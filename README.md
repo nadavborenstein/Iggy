@@ -122,6 +122,7 @@ Where:
 
 Usage:
 
+To predict using a BERT model on unlabeled data, run:</b>
 ```bash
  python model_training/bert_labeler.py [-h] --data_dir DATA_DIR --bert_model BERT_MODEL
                        --output_path OUTPUT_PATH
