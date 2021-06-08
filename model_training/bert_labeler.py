@@ -50,9 +50,6 @@ def parse_args():
         action="store_true",
         help="Overwrite the content of the output directory",
     )
-    parser.add_argument(
-        "--use_features", action="store_true", help="Whether to use features or not"
-    )
     args = parser.parse_args()
     return args
 
@@ -139,6 +136,7 @@ def predict(args, features):
 
 def main():
     args = parse_args()
+    args.use_features = "features" in args.bert_model
     features, dataset = get_features(args)
     predictions = predict(args, features)
     dataset["prediction"] = predictions

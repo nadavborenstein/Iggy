@@ -26,8 +26,6 @@ from run_classifier_dataset_utils_refactored import (
     IggProcessor,
     convert_examples_to_features,
     compute_metrics,
-    NUM_FEATURES,
-    FIELDS,
 )
 from torch.nn import Sequential
 

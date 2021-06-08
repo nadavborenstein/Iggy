@@ -1,5 +1,5 @@
 # Iggy
-[[Paper]]() [[Presentation]]()
+[[Paper]](http://arxiv.org/abs/2106.03048)  []([[Presentation]]())
 
 Implementation of the paper "How Did This Get Funded?!Automatically Identifying Quirky Scientific Achievements".
 
@@ -118,6 +118,15 @@ Where:
 
 `predict_output_path`: where to store the prediction results
 
-### Training the BERT-based models
-TBA
+### Training and predicting with the BERT-based models
+
+Usage:
+
+```bash
+ python model_training/bert_labeler.py [-h] --data_dir DATA_DIR --bert_model BERT_MODEL
+                       --output_path OUTPUT_PATH
+                       [--max_seq_length MAX_SEQ_LENGTH]
+                       [--batch_size BATCH_SIZE] [--overwrite_output_dir]
+```
+
 ### 
