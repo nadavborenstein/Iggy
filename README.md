@@ -19,14 +19,14 @@ We trained a simple nbsvm for detecting rude or crude language, and we use it as
 [here](https://drive.google.com/drive/folders/1e687JrzzO_VWLl3cX55wUxicrHVuuuuq?usp=sharing) and paste it in `resources/rudeness-classifier`.
 
 ### Our pretrained models
-You can find our pretrained models (Iggy, and the BERT based models) [here](). Place them in `models-weights`.
+You can find our pretrained models (Iggy, and the BERT based models) [here](https://drive.google.com/drive/folders/1zTyn-ZO_LyNzF_DarxjOnqMEDUENXes-?usp=sharing). Place them in `models-weights`.
 
 
 ### Our SemanticScholar dataset
-Our raw SemanticScholar dataset of 0.6M titles can be found [here](https://drive.google.com/file/d/16AplKQK90o3Eay1QSsbQ7uT5gIZ4gE3I/view?usp=sharing).
+Our raw Semantic Scholar dataset of 0.6M titles can be found [here](https://drive.google.com/file/d/16AplKQK90o3Eay1QSsbQ7uT5gIZ4gE3I/view?usp=sharing).
 
 It takes some time to run the classifiers on 0.6M titles. Fortunately, you can 
-find [here](https://drive.google.com/file/d/1HHnnRgEJcH3Gj0gyTEz6qLp-jVye-tcA/view?usp=sharing) our SemanticScholar dataset 
+find [here](https://drive.google.com/file/d/1HHnnRgEJcH3Gj0gyTEz6qLp-jVye-tcA/view?usp=sharing) our Semantic Scholar dataset 
 after performing this step.
 
 ## Usage
